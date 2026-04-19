@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data 4G/5G Giá Rẻ</title>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:#f4f8fb;
+}
+
+header{
+  background:linear-gradient(135deg,#00c6ff,#0072ff);
+  color:white;
+  text-align:center;
+  padding:30px;
+}
+
+.container{
+  max-width:1100px;
+  margin:auto;
+  padding:20px;
+}
+
+.balance{
+  background:white;
+  padding:15px;
+  border-radius:10px;
+  margin-bottom:20px;
+  text-align:center;
+  font-weight:bold;
+}
+
+.plans{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+  gap:20px;
+}
+
+.plan{
+  background:white;
+  padding:20px;
+  border-radius:12px;
+  text-align:center;
+  box-shadow:0 4px 10px rgba(0,0,0,0.1);
+  cursor:pointer;
+}
+
+.plan.selected{
+  border:2px solid #0072ff;
+}
+
+.plan button{
+  margin-top:10px;
+  padding:10px;
+  background:#0072ff;
+  color:white;
+  border:none;
+  border-radius:6px;
+}
+
+.form{
+  margin-top:30px;
+  text-align:center;
+}
+
+input{
+  padding:10px;
+  width:220px;
+  border-radius:6px;
+  border:1px solid #ccc;
+}
+
+.btn{
+  padding:10px 15px;
+  margin-top:10px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+.activate{ background:green; color:white;}
+.deposit{ background:orange; color:white;}
+
+.qr{
+  display:none;
+  text-align:center;
+  margin-top:20px;
+}
+
+.qr img{
+  width:200px;
+}
+
+.popup{
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+  bottom:0;
+  background:rgba(0,0,0,0.5);
+  display:none;
+  justify-content:center;
+  align-items:center;
+}
+
+.popup-content{
+  background:white;
+  padding:20px;
+  border-radius:10px;
+  text-align:center;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>Cheap High-Data Plans</h1>
+  <p>4G/5G tốc độ cao - giá rẻ</p>
+</header>
+
+<div class="container">
+
+  <!-- Ví -->
+  <div class="balance">
+    Số dư: <span id="balance">0</span>đ
+  </div>
+
+  <button class="btn deposit" onclick="showQR()">Nạp tiền</button>
+
+  <!-- QR -->
+  <div class="qr" id="qr">
+    <p>Quét QR để nạp (demo)</p>
+    <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=NapTienDemo">
+    <br><br>
+    <button class="btn activate" onclick="fakeDeposit()">Tôi đã chuyển</button>
+  </div>
+
+  <!-- GÓI -->
+  <h2>Chọn gói</h2>
+
+  <div class="plans">
+
+    <div class="plan" onclick="selectPlan(this,20000,'10GB - 7 ngày')">
+      <h3>10GB</h3>
+      <p>7 ngày</p>
+      <p>20.000đ</p>
+      <button>Chọn</button>
+    </div>
+
+    <div class="plan" onclick="selectPlan(this,30000,'30GB - 15 ngày')">
+      <h3>30GB</h3>
+      <p>15 ngày</p>
+      <p>30.000đ</p>
+      <button>Chọn</button>
+    </div>
+
+    <div class="plan" onclick="selectPlan(this,50000,'150GB - 30 ngày')">
+      <h3 style="color:red;">🔥 HOT</h3>
+      <p>150GB</p>
+      <p>30 ngày</p>
+      <p>50.000đ</p>
+      <button>Chọn</button>
+    </div>
+
+    <div class="plan" onclick="selectPlan(this,70000,'200GB - 30 ngày')">
+      <h3>200GB</h3>
+      <p>30 ngày</p>
+      <p>70.000đ</p>
+      <button>Chọn</button>
+    </div>
+
+    <div class="plan" onclick="selectPlan(this,100000,'Unlimited - 30 ngày')">
+      <h3>Unlimited</h3>
+      <p>Không giới hạn</p>
+      <p>100.000đ</p>
+      <button>Chọn</button>
+    </div>
+
+  </div>
+
+  <!-- FORM -->
+  <div class="form">
+    <h2>Kích hoạt</h2>
+    <input id="phone" placeholder="Nhập SĐT">
+    <br>
+    <button class="btn activate" onclick="activate()">Kích hoạt</button>
+  </div>
+
+</div>
+
+<!-- POPUP -->
+<div class="popup" id="popup">
+  <div class="popup-content">
+    <h3 id="popup-title"></h3>
+    <p id="popup-msg"></p>
+    <button onclick="closePopup()">OK</button>
+  </div>
+</div>
+
+<script>
+
+let balance = 0;
+let selectedPlan = null;
+let selectedPrice = 0;
+
+function updateBalance(){
+  document.getElementById("balance").innerText = balance;
+}
+
+function showQR(){
+  document.getElementById("qr").style.display="block";
+}
+
+function fakeDeposit(){
+  balance += 100000; // cộng giả
+  updateBalance();
+  showPopup("Thành công","Nạp 100.000đ thành công");
+}
+
+function selectPlan(el,price,plan){
+  document.querySelectorAll(".plan").forEach(p=>p.classList.remove("selected"));
+  el.classList.add("selected");
+
+  selectedPlan = plan;
+  selectedPrice = price;
+}
+
+function activate(){
+  const phone = document.getElementById("phone").value;
+
+  if(!selectedPlan){
+    showPopup("Lỗi","Chọn gói trước");
+    return;
+  }
+
+  if(!/^0[0-9]{9,10}$/.test(phone)){
+    showPopup("Lỗi","SĐT không hợp lệ");
+    return;
+  }
+
+  if(balance < selectedPrice){
+    showPopup("Thiếu tiền","Vui lòng nạp thêm");
+    return;
+  }
+
+  balance -= selectedPrice;
+  updateBalance();
+
+  showPopup("Thành công",`Đã kích hoạt ${selectedPlan} cho ${phone}`);
+}
+
+function showPopup(title,msg){
+  document.getElementById("popup-title").innerText=title;
+  document.getElementById("popup-msg").innerText=msg;
+  document.getElementById("popup").style.display="flex";
+}
+
+function closePopup(){
+  document.getElementById("popup").style.display="none";
+}
+
+</script>
+
+</body>
+</html>
